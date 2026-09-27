@@ -1,0 +1,18 @@
+# Ultralytics YOLO dataset spec
+# Point 'path' at your dataset root; train/val/test are relative to it.
+# Expected YOLO format: images/ + labels/ (one .txt per image, normalized xywh).
+
+path: data/yolo_dataset
+train: images/train
+val: images/val
+test: images/test
+
+names:
+  0: pothole
+  1: longitudinal_crack
+  2: transverse_crack
+  3: alligator_crack
+  4: damaged_lane_marking
+  5: damaged_road_sign
+  6: damaged_crash_barrier
+  7: water_stagnation

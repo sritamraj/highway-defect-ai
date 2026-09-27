@@ -1,0 +1,35 @@
+# Global project configuration
+
+paths:
+  raw_detections: outputs/detections.csv
+  gps_log: data/gps_log.csv
+  geotagged_detections: outputs/geotagged_detections.csv
+  hotspot_map: outputs/hotspot_map.html
+  segment_features: outputs/segment_features.csv
+  risk_scores: outputs/segment_risk_scores.csv
+  model_weights: runs/detect/train/weights/best.pt
+
+gis:
+  segment_length_m: 100          # chainage bucket size for aggregation
+  max_gps_interp_gap_s: 5        # max seconds allowed between detection ts and nearest GPS fix
+
+severity_weights:                # used to convert defect class -> severity score (0-1)
+  pothole: 1.0
+  alligator_crack: 0.9
+  water_stagnation: 0.7
+  damaged_crash_barrier: 0.8
+  transverse_crack: 0.5
+  longitudinal_crack: 0.4
+  damaged_road_sign: 0.5
+  damaged_lane_marking: 0.3
+
+hotspot_thresholds:
+  high: 66      # risk score >= this -> red
+  moderate: 33  # risk score >= this and < high -> yellow
+                # below moderate -> green
+
+risk_model:
+  target_col: risk_score
+  test_size: 0.2
+  random_state: 42
+  models: [xgboost, lightgbm, random_forest]
