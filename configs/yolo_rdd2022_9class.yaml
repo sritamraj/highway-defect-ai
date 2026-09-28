@@ -1,7 +1,6 @@
-# RDD2022 India - 9 class dataset
+# RDD2022 India - 9 populated classes
 
-path: data/RDD2022-India-9class
-
+path: YOUR_RDD2022_DATASET_PATH
 train: train/images
 val: valid/images
 test: test/images
@@ -9,10 +8,10 @@ test: test/images
 names:
   0: D00
   1: D01
-  2: D10
-  3: D11
-  4: D20
-  5: D40
-  6: D43
-  7: D44
-  8: D50
+  2: D0w0
+  3: D10
+  4: D11
+  5: D20
+  6: D40
+  7: D43
+  8: D44

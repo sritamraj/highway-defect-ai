@@ -71,9 +71,21 @@ The repository contains configuration files for:
 
 ### RDD2022 classes
 
-The RDD2022 experiments use the dataset's defect identifiers such as:
+The RDD2022 India 9-class experiment uses the following populated defect identifiers:
 
-`D00`, `D01`, `D10`, `D11`, `D20`, `D40`, `D43`, `D44`, and `D50`.
+| ID | Defect class |
+| -: | ------------ |
+| 0 | D00 |
+| 1 | D01 |
+| 2 | D0w0 |
+| 3 | D10 |
+| 4 | D11 |
+| 5 | D20 |
+| 6 | D40 |
+| 7 | D43 |
+| 8 | D44 |
+
+`D50` is not present in the labeled samples used for the 9-class experiment. The dataset metadata was verified against the label files before training.
 
 The dataset itself is not included in this repository.
 
@@ -90,6 +102,22 @@ Several lightweight CPU-friendly YOLO experiments were performed using the RDD20
 | test-20percent-10ep |    0.4858 | 0.0493 | 0.0150 |   0.0043 |
 
 These results are included as experimental baseline measurements. They should not be interpreted as production-ready model performance.
+
+### Final fast RDD2022 experiment
+
+A final CPU-friendly experiment was trained using YOLOv8n with 5 epochs, 320x320 input resolution, and 10% of the available RDD2022 India training split (653 training images). The complete validation split of 786 images was used for evaluation.
+
+| Metric | Result |
+| ------ | ------: |
+| Precision | 0.6450 |
+| Recall | 0.0298 |
+| F1 | 0.0570 |
+| mAP@50 | 0.0297 |
+| mAP@50:95 | 0.0113 |
+| Inference time | 74.1 ms/image |
+| Approx. FPS | 13.50 |
+
+This experiment demonstrates the complete training and evaluation workflow on CPU hardware. The low recall indicates that substantial model improvement is still required before production deployment. The reported metrics are specifically for the 10%-fraction, 5-epoch experiment and should not be interpreted as full-dataset performance.
 
 The current experiments were constrained by CPU compute and limited training duration.
 
@@ -299,7 +327,7 @@ The computer-vision experiments use the Road Damage Detection Dataset (RDD2022),
 
 The dataset is intentionally **not included in this GitHub repository** because of repository size and dataset-distribution considerations.
 
-Place the dataset locally and update the relevant YAML configuration if necessary.
+Place the dataset locally and set the `path` value in the relevant YAML configuration to your local dataset directory.
 
 For the RDD2022 9-class experiment, the configuration file is:
 
