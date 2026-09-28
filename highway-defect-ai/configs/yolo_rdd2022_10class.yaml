@@ -1,0 +1,19 @@
+# RDD2022 India v5 - 10-class YOLOv8 dataset
+
+path: data/RDD2022-India
+
+train: train/images
+val: valid/images
+test: test/images
+
+names:
+  0: D00
+  1: D01
+  2: D0w0
+  3: D10
+  4: D11
+  5: D20
+  6: D40
+  7: D43
+  8: D44
+  9: D50

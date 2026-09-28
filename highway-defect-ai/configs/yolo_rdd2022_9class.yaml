@@ -1,0 +1,18 @@
+# RDD2022 India - 9 class dataset
+
+path: data/RDD2022-India-9class
+
+train: train/images
+val: valid/images
+test: test/images
+
+names:
+  0: D00
+  1: D01
+  2: D10
+  3: D11
+  4: D20
+  5: D40
+  6: D43
+  7: D44
+  8: D50

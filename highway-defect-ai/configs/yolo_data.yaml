@@ -1,8 +1,7 @@
-# Ultralytics YOLO dataset spec
-# Point 'path' at your dataset root; train/val/test are relative to it.
-# Expected YOLO format: images/ + labels/ (one .txt per image, normalized xywh).
+# Ultralytics YOLO dataset specification
 
 path: data/yolo_dataset
+
 train: images/train
 val: images/val
 test: images/test

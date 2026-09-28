@@ -1,19 +1,12 @@
-venv/
 __pycache__/
 *.pyc
-.ipynb_checkpoints/
-
-# data & weights (large / private)
-data/*
-!data/README.md
+.venv/
+venv/
+data/
+datasets/
 *.pt
 *.onnx
 runs/
-
-# outputs
-outputs/*
-!outputs/.gitkeep
-
-.DS_Store
-.vscode/
+*.cache
 .idea/
+.vscode/
