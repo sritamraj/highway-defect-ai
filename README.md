@@ -11,7 +11,8 @@ This project presents a prototype AI-based highway condition-monitoring workflow
 * Road-segment condition aggregation
 * Maintenance-priority scoring
 * Interactive GIS visualization
-* Automated pipeline execution and tests
+* Automated pipeline execution
+* Automated tests and GitHub Actions CI
 
 The project is designed as an academic/research prototype demonstrating how computer vision and geospatial analytics can be combined for highway inspection and maintenance-prioritization workflows.
 
@@ -20,8 +21,6 @@ The project is designed as an academic/research prototype demonstrating how comp
 ---
 
 ## End-to-End Pipeline
-
-The current pipeline supports:
 
 ```text
 Road Images / Video
@@ -39,24 +38,24 @@ GPS Synchronization + Geotagging
 Road-Segment Feature Engineering
         |
         v
-Maintenance-Risk Scoring
+Maintenance-Priority Scoring
         |
         v
 Interactive GIS Hotspot Map
 ```
 
-The complete workflow can be executed through:
+The complete workflow is orchestrated by:
 
 ```text
 src/pipeline/run_pipeline.py
 ```
 
-The pipeline orchestrates:
+The pipeline performs:
 
 1. YOLO inference
 2. GPS-based geotagging
 3. Road-segment feature generation
-4. Risk/priority scoring
+4. Maintenance-priority scoring
 5. Interactive hotspot-map generation
 
 ---
@@ -100,7 +99,7 @@ The RDD2022 India 9-class experiment uses the following populated defect identif
 |  7 | D43          |
 |  8 | D44          |
 
-`D50` is not present in the labeled samples used for the 9-class experiment. The dataset metadata was verified against the label files before training.
+`D50` is not present in the labeled samples used for the 9-class experiment. The dataset metadata and label distribution were checked before training.
 
 The dataset itself is not included in this repository.
 
@@ -110,6 +109,8 @@ The dataset itself is not included in this repository.
 
 Several lightweight CPU-friendly YOLO experiments were performed using RDD2022 validation data.
 
+### Earlier experiments
+
 | Experiment          | Precision | Recall |  mAP50 | mAP50-95 |
 | ------------------- | --------: | -----: | -----: | -------: |
 | test-10percent      |    0.0012 | 0.2400 | 0.0021 |   0.0006 |
@@ -117,6 +118,14 @@ Several lightweight CPU-friendly YOLO experiments were performed using RDD2022 v
 | test-20percent-10ep |    0.4858 | 0.0493 | 0.0150 |   0.0043 |
 
 These results are experimental baseline measurements and should not be interpreted as production-ready model performance.
+
+### Experimental result charts
+
+![Defect distribution](outputs/charts/defect_distribution.png)
+
+![Model comparison](outputs/charts/model_comparison.png)
+
+![Maintenance priority](outputs/charts/maintenance_priority.png)
 
 ### Final fast RDD2022 experiment
 
@@ -273,7 +282,7 @@ The current demonstration generated 33 segment records.
 
 ---
 
-## Maintenance-Risk Scoring
+## Maintenance-Priority Scoring
 
 The project includes a maintenance-prioritization prototype in:
 
@@ -293,7 +302,7 @@ The scoring workflow can use:
 * Random Forest
 * LightGBM
 
-For the current demonstration, the system selected XGBoost based on the configured evaluation criterion.
+For the current demonstration, XGBoost was selected according to the configured evaluation criterion.
 
 ### Important limitation
 
@@ -301,13 +310,13 @@ The current pipeline does **not** have historical maintenance outcomes or real e
 
 Therefore, when a real target is not supplied, the system creates a documented **proxy target** from defect-related features such as defect frequency, severity, and coverage.
 
-This means the resulting risk score is a:
+The resulting score should therefore be interpreted as a:
 
 > **Maintenance-prioritization prototype indicator**
 
-It is **not a validated prediction of future pavement deterioration or maintenance cost**.
+It is **not a validated prediction of future pavement deterioration, maintenance cost, or engineering intervention requirements**.
 
-The reported model metrics for the proxy-target experiment must therefore not be interpreted as real-world predictive accuracy.
+The reported model metrics for the proxy-target experiment must not be interpreted as real-world predictive accuracy. Because the proxy target is derived from defect-related features, the resulting fit measures primarily demonstrate the modeling pipeline rather than independent predictive validity.
 
 For production-grade validation, the target should be replaced with real historical records such as:
 
@@ -323,7 +332,7 @@ For production-grade validation, the target should be replaced with real histori
 
 ## GIS Hotspot Map
 
-The current pipeline generates:
+The pipeline generates an interactive GIS map at:
 
 ```text
 outputs/hotspot_map.html
@@ -337,6 +346,8 @@ The map is built with Folium and contains:
 * Interactive geographic exploration
 
 The map is based on the synthetic demonstration GPS data described above.
+
+The current `hotspot_map.html` file is a **generated runtime artifact** and can be recreated by running the pipeline.
 
 An earlier GIS artifact is also preserved:
 
@@ -383,10 +394,10 @@ outputs/
 +-- geotagged_detections.csv
 +-- segment_features.csv
 +-- segment_risk_scores.csv
-+-- hotspot_map.html
++-- hotspot_map.html        # generated at runtime
 ```
 
-These are generated runtime artifacts from the pipeline.
+Selected CSV artifacts from the current demonstration are included in the repository for reproducibility and inspection.
 
 Earlier research artifacts remain available separately, including:
 
@@ -424,7 +435,32 @@ The tests cover core functionality including:
 * Proxy-target construction
 * Numeric feature preparation for the risk model
 
-The current test suite contains 6 tests.
+The current test suite contains **6 tests**, all of which pass in the development environment.
+
+---
+
+## Continuous Integration
+
+The repository includes a GitHub Actions workflow:
+
+```text
+.github/workflows/tests.yml
+```
+
+The workflow runs automatically for:
+
+* Pushes to `main`
+* Pull requests targeting `main`
+
+The CI workflow:
+
+1. Checks out the repository
+2. Sets up Python
+3. Installs project dependencies
+4. Installs pytest
+5. Runs the automated test suite
+
+This provides an automated quality check for future repository changes.
 
 ---
 
@@ -432,6 +468,10 @@ The current test suite contains 6 tests.
 
 ```text
 highway-defect-ai/
+|
++-- .github/
+|   +-- workflows/
+|       +-- tests.yml
 |
 +-- configs/
 |   +-- config.yaml
@@ -455,7 +495,6 @@ highway-defect-ai/
 |   +-- geotagged_detections.csv
 |   +-- segment_features.csv
 |   +-- segment_risk_scores.csv
-|   +-- hotspot_map.html
 |
 +-- src/
 |   +-- detection/
@@ -504,24 +543,25 @@ highway-defect-ai/
 * YAML configuration
 * Git/GitHub
 * Pytest
+* GitHub Actions
 
 ---
 
 ## Installation
 
-Clone the repository and install the required Python packages:
+Clone the repository and install the project dependencies:
 
 ```bash
 pip install -r requirements.txt
 ```
 
-For development/testing:
+For development and testing:
 
 ```bash
 pip install pytest
 ```
 
-The project has been tested with the dependency versions specified in `requirements.txt`.
+The project was developed and tested using the dependency versions specified in `requirements.txt`.
 
 ---
 
@@ -568,15 +608,16 @@ The repository stores:
 * Detection scripts
 * Evaluation scripts
 * Geospatial-processing code
-* Predictive-maintenance code
+* Maintenance-prioritization code
 * Pipeline orchestration
 * Automated tests
+* GitHub Actions CI configuration
 * Selected analytical outputs
 * Model-comparison results
 
 Large datasets, trained model weights, and Ultralytics training runs are excluded through `.gitignore`.
 
-Generated runtime outputs may be regenerated by running the pipeline.
+Generated runtime outputs such as the current hotspot map can be regenerated by running the pipeline.
 
 ---
 
@@ -592,6 +633,7 @@ This project demonstrates an end-to-end research workflow:
 6. Calculate a prototype maintenance-prioritization indicator.
 7. Visualize potential hotspots using GIS.
 8. Validate core processing components with automated tests.
+9. Run automated tests through GitHub Actions CI.
 
 The architecture can be extended toward a larger intelligent transportation-system platform.
 
@@ -613,8 +655,8 @@ Potential extensions include:
 * Edge deployment using optimized models
 * Automated inspection-report generation
 * Real-time dashboard integration
-* CI-based automated testing
 * Model versioning and experiment tracking
+* More extensive CI checks and deployment automation
 
 ---
 
@@ -624,6 +666,6 @@ This project is an academic/research prototype.
 
 The current geospatial demonstration uses synthetic coordinates and does not represent actual NHAI road locations or internal NHAI operational data.
 
-The current maintenance-risk score may use a proxy target when real historical maintenance labels are unavailable. It should therefore be treated as an analytical demonstration rather than a validated engineering or maintenance decision system.
+The current maintenance-prioritization score may use a proxy target when real historical maintenance labels are unavailable. It should therefore be treated as an analytical demonstration rather than a validated engineering or maintenance decision system.
 
 Model performance is experimental and should not be interpreted as production-level highway inspection accuracy.
