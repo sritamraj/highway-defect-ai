@@ -1,48 +1,63 @@
-# AI-Driven Highway Defect Detection and Predictive Maintenance
+# AI-Driven Highway Defect Detection and Maintenance Prioritization
 
 ## Overview
 
-This project presents a prototype AI-based highway condition monitoring system that combines:
+This project presents a prototype AI-based highway condition-monitoring workflow that combines:
 
 * Computer vision for highway defect detection
 * YOLO-based object detection
 * Quantitative model evaluation
-* Geospatial visualization
+* Geospatial association of detections
 * Road-segment condition aggregation
 * Maintenance-priority scoring
+* Interactive GIS visualization
+* Automated pipeline execution and tests
 
-The project is designed as an academic/research prototype for demonstrating how computer vision and geospatial analytics can be combined for highway inspection and predictive-maintenance workflows.
+The project is designed as an academic/research prototype demonstrating how computer vision and geospatial analytics can be combined for highway inspection and maintenance-prioritization workflows.
 
-> **Important:** The geospatial coordinates currently used in the prototype are synthetic/demo coordinates. They do not represent actual NHAI asset locations, internal NHAI data, or real-world maintenance records.
+> **Important:** The geospatial coordinates used in the current demonstration are synthetic/demo coordinates. They do not represent actual NHAI asset locations, internal NHAI data, or real-world maintenance records.
 
 ---
 
-## Project Pipeline
+## End-to-End Pipeline
+
+The current pipeline supports:
 
 ```text
-Road Images
-     |
-     v
-YOLO-based Defect Detection
-     |
-     v
-Detection Results
-     |
-     v
-Confidence + Defect Severity
-     |
-     v
-Geospatial Association
-     |
-     v
-Road Segment Aggregation
-     |
-     v
-Maintenance Priority Score
-     |
-     v
+Road Images / Video
+        |
+        v
+YOLO Inference
+        |
+        v
+Detection CSV
+        |
+        v
+GPS Synchronization + Geotagging
+        |
+        v
+Road-Segment Feature Engineering
+        |
+        v
+Maintenance-Risk Scoring
+        |
+        v
 Interactive GIS Hotspot Map
 ```
+
+The complete workflow can be executed through:
+
+```text
+src/pipeline/run_pipeline.py
+```
+
+The pipeline orchestrates:
+
+1. YOLO inference
+2. GPS-based geotagging
+3. Road-segment feature generation
+4. Risk/priority scoring
+5. Interactive hotspot-map generation
 
 ---
 
@@ -75,15 +90,15 @@ The RDD2022 India 9-class experiment uses the following populated defect identif
 
 | ID | Defect class |
 | -: | ------------ |
-| 0 | D00 |
-| 1 | D01 |
-| 2 | D0w0 |
-| 3 | D10 |
-| 4 | D11 |
-| 5 | D20 |
-| 6 | D40 |
-| 7 | D43 |
-| 8 | D44 |
+|  0 | D00          |
+|  1 | D01          |
+|  2 | D0w0         |
+|  3 | D10          |
+|  4 | D11          |
+|  5 | D20          |
+|  6 | D40          |
+|  7 | D43          |
+|  8 | D44          |
 
 `D50` is not present in the labeled samples used for the 9-class experiment. The dataset metadata was verified against the label files before training.
 
@@ -93,7 +108,7 @@ The dataset itself is not included in this repository.
 
 ## Model Evaluation
 
-Several lightweight CPU-friendly YOLO experiments were performed using the RDD2022 validation data.
+Several lightweight CPU-friendly YOLO experiments were performed using RDD2022 validation data.
 
 | Experiment          | Precision | Recall |  mAP50 | mAP50-95 |
 | ------------------- | --------: | -----: | -----: | -------: |
@@ -101,145 +116,315 @@ Several lightweight CPU-friendly YOLO experiments were performed using the RDD20
 | test-20percent-5ep  |    0.6068 | 0.0222 | 0.0154 |   0.0045 |
 | test-20percent-10ep |    0.4858 | 0.0493 | 0.0150 |   0.0043 |
 
-These results are included as experimental baseline measurements. They should not be interpreted as production-ready model performance.
+These results are experimental baseline measurements and should not be interpreted as production-ready model performance.
 
 ### Final fast RDD2022 experiment
 
-A final CPU-friendly experiment was trained using YOLOv8n with 5 epochs, 320x320 input resolution, and 10% of the available RDD2022 India training split (653 training images). The complete validation split of 786 images was used for evaluation.
+A separate CPU-friendly experiment was trained using YOLOv8n with 5 epochs, 320x320 input resolution, and 10% of the available RDD2022 India training split (653 training images). The complete validation split of 786 images was used for evaluation.
 
-| Metric | Result |
-| ------ | ------: |
-| Precision | 0.6450 |
-| Recall | 0.0298 |
-| F1 | 0.0570 |
-| mAP@50 | 0.0297 |
-| mAP@50:95 | 0.0113 |
+| Metric         |        Result |
+| -------------- | ------------: |
+| Precision      |        0.6450 |
+| Recall         |        0.0298 |
+| F1             |        0.0570 |
+| mAP@50         |        0.0297 |
+| mAP@50:95      |        0.0113 |
 | Inference time | 74.1 ms/image |
-| Approx. FPS | 13.50 |
+| Approx. FPS    |         13.50 |
 
-This experiment demonstrates the complete training and evaluation workflow on CPU hardware. The low recall indicates that substantial model improvement is still required before production deployment. The reported metrics are specifically for the 10%-fraction, 5-epoch experiment and should not be interpreted as full-dataset performance.
+This experiment demonstrates the training and evaluation workflow on CPU hardware. The low recall indicates that substantial model improvement is still required before production deployment.
 
-The current experiments were constrained by CPU compute and limited training duration.
+The experiments were constrained by CPU compute and limited training duration.
+
+---
+
+## Controlled RDD2022 Baseline
+
+A later controlled experiment used:
+
+* YOLOv8n
+* 20% training fraction
+* 1,306 training images
+* 786 validation images
+* 10 epochs
+* 320x320 input resolution
+* CPU training
+
+Final validation results:
+
+| Metric         |         Result |
+| -------------- | -------------: |
+| Precision      |          0.523 |
+| Recall         |          0.104 |
+| mAP@50         |         0.0508 |
+| mAP@50:95      |         0.0198 |
+| Inference time | ~74.5 ms/image |
+
+The experiment also showed substantial class imbalance, with several RDD2022 defect classes occurring much less frequently than D00, D11, and D20.
+
+The resulting model is treated as an **experimental baseline**, not a production inspection model.
 
 ---
 
 ## Detection Analysis
 
-A baseline YOLO model was evaluated on a subset of RDD2022 validation images.
+The repository contains detection-analysis artifacts from earlier experiments, including:
 
-Current analysis contains:
-
-* **2,683 detection records**
-* **464 images with prediction files**
+* Detection records
 * Confidence-score distributions
 * Per-class detection counts
 * Confidence-threshold analysis
-* IoU-based detection evaluation
+* IoU-based evaluation
 * Model comparison results
 
-The generated detection table is available at:
+The earlier baseline detection table is:
 
 ```text
 outputs/detections_yolo_baseline.csv
 ```
 
----
-
-## Geospatial Analytics
-
-The detection outputs are transformed into a geospatial representation for highway-segment analysis.
-
-The prototype includes:
-
-* Detection-to-coordinate association
-* Road-segment assignment
-* Defect severity mapping
-* Confidence-weighted priority scoring
-* Segment-level aggregation
-* Maintenance-priority categorization
-
-The current prototype contains:
-
-* **2,683 georeferenced demo detections**
-* **54 demo road segments**
-
-### Important data limitation
-
-The coordinates in:
+The newer end-to-end pipeline generates:
 
 ```text
-outputs/gis_detections_georeferenced_demo.csv
+outputs/detections.csv
 ```
 
-are synthetically generated for demonstration purposes.
+The current controlled inference run produced:
 
-They are explicitly marked:
+* 786 validation images processed
+* 299 detections
+* 198 images containing detections
+* D11, D20, D43, and D00 detections in the generated output
 
-```text
-SYNTHETIC DEMO - NOT REAL GPS
-```
-
-Therefore, the GIS results must not be presented as actual highway asset locations or official NHAI inspection data.
+These results are dependent on the experimental model and inference configuration.
 
 ---
 
-## Maintenance Priority
+## Geospatial Processing
 
-The prototype aggregates detections by road segment and calculates a maintenance score using detection confidence and defect severity.
+The pipeline associates detections with GPS observations and calculates:
 
-Example output:
+* Latitude
+* Longitude
+* Chainage
+* Road name
+* Defect severity
+
+The geotagged output is:
 
 ```text
-outputs/maintenance_priority_segments.csv
+outputs/geotagged_detections.csv
 ```
 
-The resulting priority categories are:
+The current demonstration produced:
 
-* Low
-* Medium
-* High
+* 299 geotagged detections
+* 33 road-segment feature rows
 
-The maintenance score is a research prototype indicator created for demonstrating the end-to-end pipeline. It is **not an official NHAI maintenance methodology**.
+### Demonstration synchronization
 
-For a production system, the score should be calibrated using real inspection history, maintenance records, road-condition measurements, traffic exposure, weather, and engineering standards.
+For the current image-folder demonstration, an assumed frame rate of approximately:
+
+```text
+1.29 FPS
+```
+
+was used to generate detection timestamps for synchronization with the demonstration GPS log.
+
+This is a **synthetic synchronization assumption**, not a measurement from a real vehicle-mounted camera.
+
+The GPS coordinates are also synthetic demonstration data.
+
+They must not be interpreted as actual road locations, vehicle trajectories, NHAI assets, or real inspection measurements.
+
+---
+
+## Segment Feature Engineering
+
+Geotagged detections are aggregated into fixed-length road segments.
+
+The current configuration uses:
+
+```text
+Segment length: 100 metres
+```
+
+The generated feature table is:
+
+```text
+outputs/segment_features.csv
+```
+
+Example features include:
+
+* `defect_count`
+* `unique_classes`
+* `mean_severity`
+* `max_severity`
+* `mean_confidence`
+* `chainage_start_m`
+* `latitude`
+* `longitude`
+* Per-class defect counts
+* Dominant defect class
+* Prior-visit information
+
+The current demonstration generated 33 segment records.
+
+---
+
+## Maintenance-Risk Scoring
+
+The project includes a maintenance-prioritization prototype in:
+
+```text
+src/predictive/risk_model.py
+```
+
+The current pipeline produces:
+
+```text
+outputs/segment_risk_scores.csv
+```
+
+The scoring workflow can use:
+
+* XGBoost
+* Random Forest
+* LightGBM
+
+For the current demonstration, the system selected XGBoost based on the configured evaluation criterion.
+
+### Important limitation
+
+The current pipeline does **not** have historical maintenance outcomes or real engineering priority labels.
+
+Therefore, when a real target is not supplied, the system creates a documented **proxy target** from defect-related features such as defect frequency, severity, and coverage.
+
+This means the resulting risk score is a:
+
+> **Maintenance-prioritization prototype indicator**
+
+It is **not a validated prediction of future pavement deterioration or maintenance cost**.
+
+The reported model metrics for the proxy-target experiment must therefore not be interpreted as real-world predictive accuracy.
+
+For production-grade validation, the target should be replaced with real historical records such as:
+
+* Maintenance actions
+* Inspection outcomes
+* IRI/pavement-condition measurements
+* Repair costs
+* Road-condition history
+* Traffic exposure
+* Weather history
 
 ---
 
 ## GIS Hotspot Map
 
-An interactive Folium-based map is generated at:
+The current pipeline generates:
+
+```text
+outputs/hotspot_map.html
+```
+
+The map is built with Folium and contains:
+
+* Georeferenced defect information
+* Road-segment locations
+* Segment risk/priority information
+* Interactive geographic exploration
+
+The map is based on the synthetic demonstration GPS data described above.
+
+An earlier GIS artifact is also preserved:
 
 ```text
 outputs/highway_defect_hotspot_map.html
 ```
 
-The map provides:
-
-* Road-segment locations
-* Maintenance-priority markers
-* Defect aggregation
-* Heatmap visualization
-* Interactive geographic exploration
-
-Open the file in a web browser to explore the prototype GIS visualization.
+The earlier artifact and the current pipeline output represent different experimental runs and are intentionally retained separately.
 
 ---
 
-## Generated Charts
+## Reproducible Pipeline
 
-The repository contains visual summaries in:
+### Run the demonstration pipeline
 
-```text
-outputs/charts/
+```cmd
+python src\pipeline\run_pipeline.py --config configs\config.yaml --demo
 ```
 
-Available charts include:
+### Run the pipeline with model inference
 
-* `defect_distribution.png`
-* `maintenance_priority.png`
-* `model_comparison.png`
+```cmd
+python src\pipeline\run_pipeline.py ^
+    --config configs\config.yaml ^
+    --weights runs\detect\...\weights\best.pt ^
+    --source path\to\images ^
+    --fps 1.29 ^
+    --road-name "NH-Sample"
+```
 
-These provide quick visual summaries of defect detections, segment-priority distribution, and model evaluation experiments.
+The `--fps` argument is only required when processing a folder of still images and timestamps need to be synthesized.
+
+For real video input, timestamps can be derived directly from video frames.
+
+---
+
+## Generated Pipeline Artifacts
+
+The current end-to-end pipeline generates:
+
+```text
+outputs/
++-- detections.csv
++-- geotagged_detections.csv
++-- segment_features.csv
++-- segment_risk_scores.csv
++-- hotspot_map.html
+```
+
+These are generated runtime artifacts from the pipeline.
+
+Earlier research artifacts remain available separately, including:
+
+```text
+outputs/
++-- detections_yolo_baseline.csv
++-- maintenance_priority_segments.csv
++-- model_comparison.csv
++-- highway_defect_hotspot_map.html
++-- charts/
+```
+
+---
+
+## Automated Tests
+
+The repository contains automated tests under:
+
+```text
+tests/
+```
+
+Run the complete test suite with:
+
+```cmd
+python -m pytest -v
+```
+
+The tests cover core functionality including:
+
+* Haversine distance calculation
+* GPS chainage generation
+* Detection geotagging
+* Segment feature generation
+* Proxy-target construction
+* Numeric feature preparation for the risk model
+
+The current test suite contains 6 tests.
 
 ---
 
@@ -250,6 +435,7 @@ highway-defect-ai/
 |
 +-- configs/
 |   +-- config.yaml
+|   +-- rdd2022_local_9class.yaml
 |   +-- yolo_data.yaml
 |   +-- yolo_rdd2022_9class.yaml
 |   +-- yolo_rdd2022_10class.yaml
@@ -265,6 +451,11 @@ highway-defect-ai/
 |   +-- maintenance_priority_segments.csv
 |   +-- model_comparison.csv
 |   +-- highway_defect_hotspot_map.html
+|   +-- detections.csv
+|   +-- geotagged_detections.csv
+|   +-- segment_features.csv
+|   +-- segment_risk_scores.csv
+|   +-- hotspot_map.html
 |
 +-- src/
 |   +-- detection/
@@ -280,11 +471,14 @@ highway-defect-ai/
 |   |   +-- run_pipeline.py
 |   |
 |   +-- predictive/
-|       +-- feature_engineering.py
-|       +-- risk_model.py
+|   |   +-- feature_engineering.py
+|   |   +-- risk_model.py
 |   |
 |   +-- utils/
 |       +-- config.py
+|
++-- tests/
+|   +-- test_pipeline_core.py
 |
 +-- requirements.txt
 +-- README.md
@@ -304,8 +498,12 @@ highway-defect-ai/
 * NumPy
 * Matplotlib
 * Folium
+* XGBoost
+* LightGBM
+* Scikit-learn
 * YAML configuration
 * Git/GitHub
+* Pytest
 
 ---
 
@@ -317,6 +515,12 @@ Clone the repository and install the required Python packages:
 pip install -r requirements.txt
 ```
 
+For development/testing:
+
+```bash
+pip install pytest
+```
+
 The project has been tested with the dependency versions specified in `requirements.txt`.
 
 ---
@@ -325,15 +529,33 @@ The project has been tested with the dependency versions specified in `requireme
 
 The computer-vision experiments use the Road Damage Detection Dataset (RDD2022), including the India subset.
 
-The dataset is intentionally **not included in this GitHub repository** because of repository size and dataset-distribution considerations.
+The dataset is intentionally **not included in this repository**.
 
-Place the dataset locally and set the `path` value in the relevant YAML configuration to your local dataset directory.
-
-For the RDD2022 9-class experiment, the configuration file is:
+For a portable 9-class dataset configuration, use:
 
 ```text
-configs/yolo_rdd2022_9class.yaml
+configs/rdd2022_local_9class.yaml
 ```
+
+The expected dataset layout is:
+
+```text
+data/
++-- RDD2022-India-9class/
+    +-- train/
+    |   +-- images/
+    |   +-- labels/
+    |
+    +-- valid/
+    |   +-- images/
+    |   +-- labels/
+    |
+    +-- test/
+        +-- images/
+        +-- labels/
+```
+
+The dataset is excluded from Git through `.gitignore`.
 
 ---
 
@@ -347,10 +569,14 @@ The repository stores:
 * Evaluation scripts
 * Geospatial-processing code
 * Predictive-maintenance code
-* Generated analytical outputs
+* Pipeline orchestration
+* Automated tests
+* Selected analytical outputs
 * Model-comparison results
 
 Large datasets, trained model weights, and Ultralytics training runs are excluded through `.gitignore`.
+
+Generated runtime outputs may be regenerated by running the pipeline.
 
 ---
 
@@ -361,9 +587,11 @@ This project demonstrates an end-to-end research workflow:
 1. Detect road defects from images.
 2. Quantify detection confidence and defect type.
 3. Associate detections with geographic coordinates.
-4. Aggregate defects by road segment.
-5. Calculate a prototype maintenance-priority indicator.
-6. Visualize potential hotspots using GIS.
+4. Aggregate detections by road segment.
+5. Engineer segment-level condition features.
+6. Calculate a prototype maintenance-prioritization indicator.
+7. Visualize potential hotspots using GIS.
+8. Validate core processing components with automated tests.
 
 The architecture can be extended toward a larger intelligent transportation-system platform.
 
@@ -385,6 +613,8 @@ Potential extensions include:
 * Edge deployment using optimized models
 * Automated inspection-report generation
 * Real-time dashboard integration
+* CI-based automated testing
+* Model versioning and experiment tracking
 
 ---
 
@@ -392,10 +622,8 @@ Potential extensions include:
 
 This project is an academic/research prototype.
 
-The current geospatial dataset contains synthetic demonstration coordinates and does not represent actual NHAI road locations or internal NHAI operational data.
+The current geospatial demonstration uses synthetic coordinates and does not represent actual NHAI road locations or internal NHAI operational data.
 
-The maintenance-priority score is a prototype analytical indicator and is not an official NHAI methodology.
+The current maintenance-risk score may use a proxy target when real historical maintenance labels are unavailable. It should therefore be treated as an analytical demonstration rather than a validated engineering or maintenance decision system.
 
 Model performance is experimental and should not be interpreted as production-level highway inspection accuracy.
-
----
