@@ -1,7 +1,8 @@
 # AI-Driven Highway Defect Detection and Maintenance Prioritization
 
-## Overview
+[![Tests](https://github.com/sritamraj/highway-defect-ai/actions/workflows/tests.yml/badge.svg)](https://github.com/sritamraj/highway-defect-ai/actions/workflows/tests.yml)
 
+## Overview
 This project presents a prototype AI-based highway condition-monitoring workflow that combines:
 
 * Computer vision for highway defect detection
