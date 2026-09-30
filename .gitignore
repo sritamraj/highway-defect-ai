@@ -10,3 +10,8 @@ runs/
 *.cache
 .idea/
 .vscode/
+outputs/detections.csv
+outputs/geotagged_detections.csv
+outputs/segment_features.csv
+outputs/segment_risk_scores.csv
+outputs/hotspot_map.html
